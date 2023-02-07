@@ -19,13 +19,12 @@ private:
 	size_t count = 0;
 	Type* head;
 	Type* tail;
-	bool flagReplace = false;		 //ôëàã ïåðåçàïèñè
 public:
 	explicit circularBuff(size_t capacitty);
 	~circularBuff() { this->clear(); }
 	size_t size() { return count; }
-	void push_back(const Type& value);
-	void push_front(const Type& value);
+	bool push_back(const Type& value);
+	bool push_front(const Type& value);
 	bool pop_back(Type& outValue);
 	bool pop_front(Type& outValue);
 	void clear();
@@ -34,13 +33,12 @@ public:
 template<class Type>
 circularBuff<Type>::circularBuff(size_t capacitty)
 	:capacitty(capacitty), buff(new Type[capacitty]) {
-	flagReplace = !capacitty;
 	head = buff;
 	tail = &buff[capacitty - 1];
 }
 
 template<class Type>
-void circularBuff<Type>::push_back(const Type & value)
+bool circularBuff<Type>::push_back(const Type & value)
 {
 	// [1][2][3][4] -> [5][2][3][4]  -> [5][6][3][4]
 	//  ^head               ^head               ^head
@@ -52,10 +50,11 @@ void circularBuff<Type>::push_back(const Type & value)
 	if (++head == &buff[capacitty])
 		head = buff;
 	PRINT_BUFF
+		return true;
 }
 
 template<class Type>
-void circularBuff<Type>::push_front(const Type & value)
+bool circularBuff<Type>::push_front(const Type & value)
 {
 	// [1][2][3][4] -> [1][2][3][5] -> [1][2][6][5]
 	//           ^tail        ^tail        ^tail
@@ -69,6 +68,7 @@ void circularBuff<Type>::push_front(const Type & value)
 	else
 		--tail;
 	PRINT_BUFF
+		return true;
 }
 
 template<class Type>
