@@ -4,66 +4,73 @@ template <class Type>
 class circularBuff {
 private:
 	Type* buff;
-	size_t length;
-	size_t indexInsert = 0;			
-	size_t offsetPoint = 0;			
-	bool flagReplace;				//флаг перезаписи
+	size_t capacity;			
+	size_t length = 0;
+	Type* head;					//для добавления в начало очереди
+	Type* tail;					//для добавления в конец очереди
+	Type* end;
+	bool flagReplace = false;	//флаг перезаписи
 public:
-	explicit circularBuff(size_t length = 0) :length(length), 
-		 buff(new Type[length]), flagReplace(!length) {}
-	~circularBuff() { this->clear();}
-	Type& operator[] (const size_t index);
-	size_t size() { return length; }
+	explicit circularBuff(size_t capacity = 0)
+	{
+		this->capacity = capacity;
+		buff = new Type[capacity];
+		tail = buff;
+		head = &buff[capacity - 1];
+		end = &buff[capacity];
+		for (size_t index = 0; index < capacity; index++) 
+			buff[index] = 0;
+		std::cout << std::endl;
+	}
+	~circularBuff()							{this->clear();}
+	Type& operator[](const size_t index)	{return buff[index]; }
+	size_t size()							{return length;}
 	void push_back(const Type& value);
 	void push_front(const Type& value);
 	void clear();
 };
 
 template<class Type>
-Type& circularBuff<Type>::operator[](const size_t index)
-{
-	size_t replaceIndex = index + offsetPoint;		
-	if (replaceIndex >= length)
-	{
-		replaceIndex -= length;
-	}
-	return buff[replaceIndex];
-}
-
-template<class Type>
 void circularBuff<Type>::push_back(const Type& value)
 {
-	// [1][2][3][4] -> [5][2][3][4]  выводим через[] -> 2 3 4 5
-	if (flagReplace)
+	*tail = value;
+	tail++;
+	if (tail == end)
 	{
-		offsetPoint++;
-		if (offsetPoint == length)
-			offsetPoint = 0;
-	}	
-	buff[indexInsert++] = value;
-	if (indexInsert == length)  
-	{
-		indexInsert = 0;
-		flagReplace = true;
+		tail = buff;
 	}
+	if (length != capacity) 
+	{
+		length++;
+	}
+	else
+	{
+		head = tail;
+	}
+	for (size_t index = 0; index < capacity; index++)
+		std::cout << buff[index]  << " ";
+	std::cout << std::endl;
 }
 
 template<class Type>
 void circularBuff<Type>::push_front(const Type& value)
 {
-	// [1][2][3][4] -> [1][2][3][5] выводим через[] -> 5 1 2 3
-	if (flagReplace)
-	{
-		if (indexInsert == 0)	
-			indexInsert = length;		
+	head--;
+	*head = value;
+	if (head == buff) {
+		head = end;
 	}
-	else	//[1][2][][] -> [1][2][][3] выводим через[] -> 3 1 2 
+	if (length != capacity)
 	{
-		indexInsert = length;
-		flagReplace = true;
+		length++;
 	}
-	buff[--indexInsert] = value;
-	offsetPoint = indexInsert;
+	else
+	{
+		tail = head;
+	}
+	for (size_t index = 0; index < capacity; index++)
+		std::cout << buff[index]  << " ";
+	std::cout << std::endl;
 }
 
 template<class Type>
@@ -80,24 +87,21 @@ void circularBuff<Type>::clear()
 
 int main() {
 	circularBuff<int> buffer(4);
-	buffer.push_back(1);
-	//buffer.push_back(2);
-	buffer.push_front(3);
-	buffer.push_front(4);
-	buffer.push_front(5);
-	buffer.push_front(6);
-	/*buffer.push_back(3);
+	buffer.push_back(1);	
+	buffer.push_back(2);
+	///*buffer.push_front(3);
+	//buffer.push_front(4);
+	//*/
+	buffer.push_back(3);
 	buffer.push_back(4);
 	buffer.push_back(5);
-	buffer.push_back(6);
-	buffer.push_back(7);
+	buffer.push_front(6);
+	buffer.push_front(7);
+	////buffer.push_back(6);
+	////buffer.push_back(7);
 	buffer.push_back(8);
-	buffer.push_front(0);
-	buffer.push_front(1);
-	buffer.push_front(2);
-	buffer.push_back(6);*/
-	for (size_t index = 0; index < buffer.size(); index++) {
-		std::cout<< buffer[index]<< std::endl;
-	}
+	////buffer.push_front(2);
+	////buffer.push_back(6);
+	
 	return 0;
 }
